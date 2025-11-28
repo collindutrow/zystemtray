@@ -8,12 +8,6 @@ Small helper to launch, hide, and control console applications from the Windows 
 
 Target platform: **Windows only**.
 
-## Installation
-
-1. **Download** release.
-2. **Extract** somewhere visible on PATH.
-3. **Enjoy**.
-
 ## Build
 
 Zig Version:
