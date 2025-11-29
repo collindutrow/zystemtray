@@ -132,12 +132,29 @@ pub fn spawnChild(
 }
 
 pub fn terminateChild(child: *ProcessContext) void {
-    // Non-graceful hard kill
-    const rc = th.TerminateProcess(child.parent_hwnd, 1);
-    if (rc == 0) {
-        std.log.info("TerminateProcess failed for PID {d}", .{child.pid});
+    // Access mask for TerminateProcess
+    const PROCESS_TERMINATE: th.PROCESS_ACCESS_RIGHTS = @bitCast(@as(u32, 0x0001));
+
+    // Kill the console client (user's program)
+    if (th.OpenProcess(PROCESS_TERMINATE, 0, child.pid)) |h_child| {
+        defer _ = fnd.CloseHandle(h_child);
+
+        const rc_child = th.TerminateProcess(h_child, 1);
+        if (rc_child == 0) {
+            std.log.info("TerminateProcess failed for client PID {d}", .{child.pid});
+        } else {
+            std.log.info("Terminated console client PID {d}", .{child.pid});
+        }
     } else {
-        std.log.info("Terminated child PID {d}", .{child.pid});
+        std.log.info("OpenProcess failed for client PID {d}", .{child.pid});
+    }
+
+    // Kill the console host (conhost.exe)
+    const rc_host = th.TerminateProcess(child.parent_hwnd, 1);
+    if (rc_host == 0) {
+        std.log.info("TerminateProcess failed for host of PID {d}", .{child.pid});
+    } else {
+        std.log.info("Terminated console host for PID {d}", .{child.pid});
     }
 }
 

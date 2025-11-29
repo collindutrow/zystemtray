@@ -207,7 +207,7 @@ pub fn runTrayApp(allocator: std.mem.Allocator, opts: Options) !void {
 
     std.log.info("Running tray message loop...", .{});
 
-    // Run tray message loop
+    // Run tray message loop, blocks until exit.
     tray.messageLoop();
 
     // Tray is exiting because the user hit "Exit" or WM_QUIT was posted.
